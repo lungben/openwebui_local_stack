@@ -1,1 +1,5 @@
-anythingllm_storage
+.env
+ollama_models
+open-terminal
+open-webui
+searxng
