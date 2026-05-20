@@ -38,6 +38,7 @@ services:
       - ollama
       - open-terminal
       - searxng
+      - comfyui
     env_file:
       - .env
     environment:
@@ -54,6 +55,12 @@ services:
       ### Open Terminal integration
       - ENABLE_OPEN_TERMINAL=True
       - OPEN_TERMINAL_URL=http://open-terminal:8000
+
+      ### ComfyUI image generation
+      - ENABLE_IMAGE_GENERATION=True
+      - IMAGE_GENERATION_ENGINE=comfyui
+      - COMFYUI_BASE_URL=http://host.containers.internal:8188
+      - ENABLE_RAG_LOCAL_WEB_FETCH=True
 
       ### Stability tuning
       - REQUEST_TIMEOUT=600
@@ -142,3 +149,32 @@ services:
       options:
         max-size: "1m"
         max-file: "1"
+
+
+  comfyui:
+    image: docker.io/yanwk/comfyui-boot:rocm
+    container_name: comfyui
+
+    restart: unless-stopped
+
+    devices:
+      - /dev/kfd
+      - /dev/dri
+
+    group_add:
+      - keep-groups
+
+    security_opt:
+      - label=disable
+
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=11.0.0
+      - CLI_ARGS=--cpu  # use this flag if your VRAM is not large enough for the LLM (via Ollama) and the image generation model. The latter runs then on CPU+RAM.
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+    ports:
+      - "8188:8188"
+
+    volumes:
+      - ./comfyui:/root:Z
+      

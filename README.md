@@ -28,6 +28,7 @@ podman compose up -d
 | `open-webui` | `ghcr.io/open-webui/open-webui:main` | 3000 | Chat UI |
 | `open-terminal` | `ghcr.io/open-webui/open-terminal:latest` | — | In-UI terminal |
 | `searxng` | `searxng/searxng:latest` | 8080 | Self-hosted web search |
+| `comfyui` | `yanwk/comfyui-boot:rocm` | 8188 | Stable Diffusion UI |
 
 ## Commands
 
@@ -52,6 +53,28 @@ podman compose down
 - All other settings are inlined in `docker-compose.yml` (Ollama tuning, Open WebUI mode, SearXNG config, internal URLs)
 - Open WebUI runs **auth-less single-user** (`WEBUI_AUTH=False`)
 - ROCm GPU tuning: adjust `HSA_OVERRIDE_GFX_VERSION` in the `ollama` service if needed
+
+## ComfyUI
+
+Starts on **http://localhost:8188**.
+
+### Download a model
+
+Models go into `comfyui/ComfyUI/models/checkpoints/` (this directory is gitignored).
+
+For example, to download **Stable Diffusion XL 1.0**:
+
+```sh
+# Requires curl and ~7 GB free, maybe HuggingFace Login is required
+curl -L -o comfyui/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors \
+  https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+```
+
+Restart ComfyUI after downloading:
+
+```sh
+podman compose stop comfyui && podman compose up -d comfyui
+```
 
 ## Notes
 
