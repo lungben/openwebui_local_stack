@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "open-webui": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Open WebUI (local)",
+      "options": {
+        "baseURL": "http://localhost:3000/ollama/v1/",
+        // Paste your API key below (Settings → Account → Generate API Key)
+        "apiKey": "sk-..."
+      },
+      "models": {
+        "qwen3.6:latest": {
+          "name": "Qwen 3.6 (local)"
+        }
+      }
+    }
+  }
+}

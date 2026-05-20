@@ -12,6 +12,7 @@ Single `docker-compose.yml` launches a fully self-hosted AI workspace. No cloud 
 | **RAG on documents** | Upload PDFs, text files, or URLs — the stack embeds them locally (`all-MiniLM-L6-v2`) and the LLM answers from your documents |
 | **In-UI terminal** | Run shell commands, scripts, or code directly inside the chat interface |
 | **Code interpreter** | The LLM can execute Python code in the sandboxed terminal |
+| **Provision models to other tools** | Open WebUI exposes an authenticated Ollama-compatible API (`/ollama/v1/`) — tools like opencode, Cursor, or any OpenAI-compatible client can access your local models via API key |
 
 ## Prerequisites
 
@@ -35,7 +36,7 @@ podman compose up -d
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| `ollama` | `ollama/ollama:rocm` | 11434 | LLM inference (ROCm GPU) |
+| `ollama` | `ollama/ollama:rocm` | — | LLM inference (ROCm GPU, internal only) |
 | `open-webui` | `ghcr.io/open-webui/open-webui:main` | 3000 | Chat UI |
 | `open-terminal` | `ghcr.io/open-webui/open-terminal:latest` | — | In-UI terminal |
 | `searxng` | `searxng/searxng:latest` | — | Self-hosted web search (internal only) |
@@ -62,7 +63,7 @@ podman compose down
 - **`.env`** — secrets (`WEBUI_SECRET_KEY`, `OPEN_TERMINAL_API_KEY`). Use `.env.example` as a template.
 - Runtime data dirs (`ollama_models/`, `open-terminal/`, `open-webui/`, `searxng/`) are gitignored — do not commit
 - All other settings are inlined in `docker-compose.yml` (Ollama tuning, Open WebUI mode, SearXNG config, internal URLs)
-- Open WebUI runs **auth-less single-user** (`WEBUI_AUTH=False`)
+- Open WebUI runs **auth mode** (`WEBUI_AUTH=True`) — first user to register becomes admin
 - **Native function calling** enabled for all models (`function_calling: native`) — tools (web search, image generation, terminal, code interpreter) use the model's built-in tool-use capabilities
 - Default model capabilities: file context, vision, file upload, web search, image generation, code interpreter, terminal, citations, status updates, builtin tools
 - ROCm GPU tuning: adjust `HSA_OVERRIDE_GFX_VERSION` in the `ollama` service if needed
@@ -141,6 +142,36 @@ Upload documents or paste URLs in the chat to give the LLM context from your own
 4. The LLM will retrieve relevant chunks and cite sources in its answers
 
 Embedding models are cached in `open-webui/cache/embedding/models/` (gitignored).
+
+## Open WebUI API key (external tool access)
+
+Ollama is **not exposed** on a host port. Other tools (opencode, Cursor, etc.) must connect through Open WebUI's Ollama-compatible proxy.
+
+### 1. Enable API key generation (admin)
+
+Open http://localhost:3000, create the first admin account, then click your avatar → **Admin Panel** → **Settings** → **API Keys** → toggle **Enable API Key Generation**.
+
+### 3. Generate an API key (user)
+
+Click your avatar → **Settings** → **Account** → **Generate API Key**. Copy the key — it won't be shown again.
+
+### 4. Configure opencode
+
+`opencode.jsonc.example` at repo root has a ready-made config for opencode. Copy it to the global config directory and paste your key:
+
+```sh
+cp opencode.jsonc.example ~/.config/opencode/opencode.jsonc
+# then edit ~/.config/opencode/opencode.jsonc and paste your key
+```
+
+Then in opencode, run `/models` and select `open-webui/qwen3.6:latest`.
+
+For other tools, use the Ollama-compatible OpenAI endpoint:
+
+```
+OPENAI_BASE_URL=http://localhost:3000/ollama/v1
+OPENAI_API_KEY=sk-...  # the key you generated
+```
 
 ## Notes
 

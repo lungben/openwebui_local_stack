@@ -4,8 +4,6 @@ services:
   ollama:
     image: docker.io/ollama/ollama:rocm
     container_name: ollama
-    ports:
-      - "11434:11434"
     devices:
       - /dev/kfd
       - /dev/dri
@@ -47,7 +45,7 @@ services:
       - OLLAMA_API_BASE_URL=http://ollama:11434
 
       ### Single-user mode
-      - WEBUI_AUTH=False
+      - WEBUI_AUTH=True
       - ENABLE_SIGNUP=False
       - DEFAULT_USER_ROLE=user
       - ENABLE_COMMUNITY_SHARING=False

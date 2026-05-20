@@ -20,7 +20,7 @@ Ollama (LLM) runs on GPU. ComfyUI (image gen) runs on **CPU** (`CLI_ARGS=--cpu`)
 
 Download SDXL checkpoint to `comfyui/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors`. Workflow and node mappings are in `comfyui-workflow.json` and `comfyui-workflow-nodes.json` at repo root.
 
-## Commands
+### Commands
 
 ```sh
 podman compose up -d              # start all
