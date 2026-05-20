@@ -128,8 +128,8 @@ services:
 
     volumes:
       - ./searxng:/etc/searxng:Z
-    ports:
-    - "8080:8080"
+    # ports:
+    # - "8080:8080"
 
     cap_drop:  # has maybe commented out for the first start of the container
       - ALL
@@ -172,8 +172,8 @@ services:
       - CLI_ARGS=--cpu  # use this flag if your VRAM is not large enough for the LLM (via Ollama) and the image generation model. The latter runs then on CPU+RAM.
       - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-    ports:
-      - "8188:8188"
+    # ports:
+    #   - "8188:8188"
 
     volumes:
       - ./comfyui:/root:Z
