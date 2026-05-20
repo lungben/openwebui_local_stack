@@ -1,47 +1,29 @@
 # AI stack — Podman Compose
 
-Single `docker-compose.yml` launches the full stack. No build steps, no tests.
+Single `docker-compose.yml` launches Ollama, Open WebUI, Open Terminal, ComfyUI, and SearXNG. No build steps, no tests.
 
-## Services
+## GPU sharing — single AMD ROCm GPU
 
-| Service | Image | Port | Purpose |
-|---------|-------|------|---------|
-| `ollama` | `ollama/ollama:rocm` | 11434 | LLM inference (ROCm GPU) |
-| `open-webui` | `ghcr.io/open-webui/open-webui:main` | 3000 | Chat UI |
-| `open-terminal` | `ghcr.io/open-webui/open-terminal:latest` | — | In-UI terminal |
-| `searxng` | `searxng/searxng:latest` | 8080 | Self-hosted web search |
+Ollama (LLM) runs on GPU. ComfyUI (image gen) runs on **CPU** (`CLI_ARGS=--cpu`) to avoid VRAM contention. Expect ~90 s per SDXL image.
+
+## Key gotchas
+
+- **`group_add: keep-groups`** required on both `ollama` and `comfyui` for `/dev/kfd` and `/dev/dri` access. Without it, devices appear as `nobody:65534` inside the container and GPU detection fails.
+- **`COMFYUI_BASE_URL=http://host.containers.internal:8188`** — Podman's host-gateway DNS. Using the Docker internal hostname `comfyui` breaks Open WebUI's URL validator (`validators.url` rejects single-label hostnames).
+- **`ENABLE_RAG_LOCAL_WEB_FETCH=True`** — Open WebUI's `validate_url()` rejects private IPs by default. Required so it can fetch generated images from the ComfyUI endpoint.
+- **Open WebUI `PersistentConfig` overrides env vars from its SQLite DB.** ComfyUI settings (base URL, workflow, nodes) must be configured once via Admin Panel → Image Generation. Env vars only apply on first startup before the DB is populated. See `README.md` for the setup steps.
+- **`podman-compose` 1.0.6** — does not support `podman compose rm`. Use `podman rm <container>` directly.
+- Config hash change triggers **full stack recreation** (all services), not just the modified one.
+- **`security_opt: label=disable`** on comfyui — required for SELinux with device passthrough.
+
+## ComfyUI model
+
+Download SDXL checkpoint to `comfyui/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors`. Workflow and node mappings are in `comfyui-workflow.json` and `comfyui-workflow-nodes.json` at repo root.
 
 ## Commands
 
 ```sh
-# Start everything
-podman compose up -d
-
-# View logs for a service
-podman compose logs -f open-webui
-
-# Pull latest images and recreate
-podman compose pull && podman compose up -d
-
-# Stop everything
-podman compose down
-
-# Run with podman (not docker) — use podman compose or docker-compose with podman socket
+podman compose up -d              # start all
+podman compose logs -f <service>  # follow logs
+podman compose down               # stop all
 ```
-
-## Configuration
-
-- **`.env`** — secrets (`WEBUI_SECRET_KEY`, `OPEN_TERMINAL_API_KEY`). See `.env.example` for the template.
-- Runtime data dirs (`ollama_models/`, `open-terminal/`, `open-webui/`, `searxng/`) are gitignored — do not commit
-- Ollama tuned for **single model, no parallelism** (`OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NUM_PARALLEL=1`)
-- Open WebUI runs **auth-less single-user** (`WEBUI_AUTH=False`)
-- Web search uses the bundled SearXNG container (`ENABLE_WEB_SEARCH=True`)
-- ROCm requires `HSA_OVERRIDE_GFX_VERSION=11.0.0` — adjust per GPU
-
-## Key gotchas
-
-- All volumes use SELinux `:Z` label — may need adjustment on non-SELinux hosts
-- `userns_mode: keep-id` on open-terminal for user namespace mapping
-- `open-webui` depends on `ollama`, `open-terminal`, and `searxng` — compose will wait for them
-- `open-webui` port is `3000:8080` (host:container)
-- No `opencode.json` or other instruction files exist in this repo
