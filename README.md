@@ -1,6 +1,24 @@
 # AI stack — Podman Compose
 
-Single `docker-compose.yml` launches the full stack. No build steps, no tests.
+Single `docker-compose.yml` launches an AI stack with Ollama, Open WebUI, Open Terminal, and SearXNG. Designed for **Linux + AMD GPU (ROCm) + Podman**.
+
+## Prerequisites
+
+- Linux with AMD GPU (ROCm-compatible)
+- [Podman](https://podman.io/)
+
+## Quick start
+
+```sh
+# Copy the env template and fill in secrets
+cp .env.example .env
+# Edit .env with your own random strings for WEBUI_SECRET_KEY and OPEN_TERMINAL_API_KEY
+
+# Start everything
+podman compose up -d
+
+# Open http://localhost:3000
+```
 
 ## Services
 
@@ -25,23 +43,17 @@ podman compose pull && podman compose up -d
 
 # Stop everything
 podman compose down
-
-# Run with podman (not docker) — use podman compose or docker-compose with podman socket
 ```
 
 ## Configuration
 
-- **`.env`** — secrets (`WEBUI_SECRET_KEY`, `OPEN_TERMINAL_API_KEY`). See `.env.example` for the template.
+- **`.env`** — secrets (`WEBUI_SECRET_KEY`, `OPEN_TERMINAL_API_KEY`). Use `.env.example` as a template.
 - Runtime data dirs (`ollama_models/`, `open-terminal/`, `open-webui/`, `searxng/`) are gitignored — do not commit
-- Ollama tuned for **single model, no parallelism** (`OLLAMA_MAX_LOADED_MODELS=1`, `OLLAMA_NUM_PARALLEL=1`)
+- All other settings are inlined in `docker-compose.yml` (Ollama tuning, Open WebUI mode, SearXNG config, internal URLs)
 - Open WebUI runs **auth-less single-user** (`WEBUI_AUTH=False`)
-- Web search uses the bundled SearXNG container (`ENABLE_WEB_SEARCH=True`)
-- ROCm requires `HSA_OVERRIDE_GFX_VERSION=11.0.0` — adjust per GPU
+- ROCm GPU tuning: adjust `HSA_OVERRIDE_GFX_VERSION` in the `ollama` service if needed
 
-## Key gotchas
+## Notes
 
 - All volumes use SELinux `:Z` label — may need adjustment on non-SELinux hosts
-- `userns_mode: keep-id` on open-terminal for user namespace mapping
-- `open-webui` depends on `ollama`, `open-terminal`, and `searxng` — compose will wait for them
 - `open-webui` port is `3000:8080` (host:container)
-- No `opencode.json` or other instruction files exist in this repo
