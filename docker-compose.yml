@@ -41,12 +41,9 @@ services:
     env_file:
       - .env
     environment:
-      ### Core secrets
-      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
-
       ### Ollama connection (NO UI setup required)
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
-      - OLLAMA_API_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_API_BASE_URL=http://ollama:11434
 
       ### Single-user mode
       - WEBUI_AUTH=False
@@ -56,8 +53,7 @@ services:
 
       ### Open Terminal integration
       - ENABLE_OPEN_TERMINAL=True
-      - OPEN_TERMINAL_URL=${OPEN_TERMINAL_URL}
-      - OPEN_TERMINAL_API_KEY=${OPEN_TERMINAL_API_KEY}
+      - OPEN_TERMINAL_URL=http://open-terminal:8000
 
       ### Stability tuning
       - REQUEST_TIMEOUT=600
@@ -97,8 +93,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      - OPEN_TERMINAL_API_KEY=${OPEN_TERMINAL_API_KEY}
     
     userns_mode: keep-id
     volumes:
@@ -130,7 +124,7 @@ services:
     ports:
     - "8080:8080"
 
-    cap_drop:
+    cap_drop:  # has maybe commented out for the first start of the container
       - ALL
     cap_add:
       - CHOWN
