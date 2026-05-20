@@ -39,7 +39,7 @@ podman compose up -d
 | `open-webui` | `ghcr.io/open-webui/open-webui:main` | 3000 | Chat UI |
 | `open-terminal` | `ghcr.io/open-webui/open-terminal:latest` | — | In-UI terminal |
 | `searxng` | `searxng/searxng:latest` | — | Self-hosted web search (internal only) |
-| `comfyui` | `yanwk/comfyui-boot:rocm` | — | Stable Diffusion UI (internal only) |
+| `comfyui` | `yanwk/comfyui-boot:rocm` | 8188 | Stable Diffusion UI (port required for open-webui via host gateway) |
 
 ## Commands
 
@@ -69,7 +69,7 @@ podman compose down
 
 ## ComfyUI
 
-Internal-only service. Open WebUI uses it as the image generation backend. To access ComfyUI directly, uncomment `ports` in `docker-compose.yml` and it will be available at **http://localhost:8188**.
+Port 8188 is published so Open WebUI can reach it via `host.containers.internal`. Direct access at **http://localhost:8188**.
 
 ### Download a model
 

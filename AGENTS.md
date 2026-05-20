@@ -9,7 +9,7 @@ Ollama (LLM) runs on GPU. ComfyUI (image gen) runs on **CPU** (`CLI_ARGS=--cpu`)
 ## Key gotchas
 
 - **`group_add: keep-groups`** required on both `ollama` and `comfyui` for `/dev/kfd` and `/dev/dri` access. Without it, devices appear as `nobody:65534` inside the container and GPU detection fails.
-- **`COMFYUI_BASE_URL=http://host.containers.internal:8188`** — Podman's host-gateway DNS. Using the Docker internal hostname `comfyui` breaks Open WebUI's URL validator (`validators.url` rejects single-label hostnames).
+- **`COMFYUI_BASE_URL=http://host.containers.internal:8188`** — Podman's host-gateway DNS. Using the Docker internal hostname `comfyui` breaks Open WebUI's URL validator (`validators.url` rejects single-label hostnames). The port **must be published** (`8188:8188`) so the host-gateway route works.
 - **`ENABLE_RAG_LOCAL_WEB_FETCH=True`** — Open WebUI's `validate_url()` rejects private IPs by default. Required so it can fetch generated images from the ComfyUI endpoint.
 - **Open WebUI `PersistentConfig` overrides env vars from its SQLite DB.** ComfyUI settings (base URL, workflow, nodes) must be configured once via Admin Panel → Image Generation. Env vars only apply on first startup before the DB is populated. See `README.md` for the setup steps.
 - **`podman-compose` 1.0.6** — does not support `podman compose rm`. Use `podman rm <container>` directly.

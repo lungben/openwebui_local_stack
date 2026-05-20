@@ -172,8 +172,9 @@ services:
       - CLI_ARGS=--cpu  # use this flag if your VRAM is not large enough for the LLM (via Ollama) and the image generation model. The latter runs then on CPU+RAM.
       - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-    # ports:
-    #   - "8188:8188"
+    ports:
+      # Required so open-webui can reach ComfyUI via host.containers.internal:8188
+      - "8188:8188"
 
     volumes:
       - ./comfyui:/root:Z
