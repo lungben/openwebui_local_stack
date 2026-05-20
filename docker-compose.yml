@@ -106,7 +106,7 @@ services:
       - ./open-terminal:/home/user:Z
 
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c \"import urllib.request; exit(0) if urllib.request.urlopen('http://localhost:8000/').status == 200 else exit(1)\""]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; exit(0) if urllib.request.urlopen('http://localhost:8000/health').status == 200 else exit(1)\""]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -131,7 +131,7 @@ services:
     # ports:
     # - "8080:8080"
 
-    cap_drop:  # has maybe commented out for the first start of the container
+    cap_drop:
       - ALL
     cap_add:
       - CHOWN

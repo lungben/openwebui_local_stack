@@ -38,8 +38,8 @@ podman compose up -d
 | `ollama` | `ollama/ollama:rocm` | 11434 | LLM inference (ROCm GPU) |
 | `open-webui` | `ghcr.io/open-webui/open-webui:main` | 3000 | Chat UI |
 | `open-terminal` | `ghcr.io/open-webui/open-terminal:latest` | — | In-UI terminal |
-| `searxng` | `searxng/searxng:latest` | 8080 | Self-hosted web search |
-| `comfyui` | `yanwk/comfyui-boot:rocm` | 8188 | Stable Diffusion UI |
+| `searxng` | `searxng/searxng:latest` | — | Self-hosted web search (internal only) |
+| `comfyui` | `yanwk/comfyui-boot:rocm` | — | Stable Diffusion UI (internal only) |
 
 ## Commands
 
@@ -69,7 +69,7 @@ podman compose down
 
 ## ComfyUI
 
-Standalone at **http://localhost:8188**. Open WebUI uses it as the image generation backend.
+Internal-only service. Open WebUI uses it as the image generation backend. To access ComfyUI directly, uncomment `ports` in `docker-compose.yml` and it will be available at **http://localhost:8188**.
 
 ### Download a model
 
