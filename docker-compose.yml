@@ -177,4 +177,11 @@ services:
 
     volumes:
       - ./comfyui:/root:Z
+
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; exit(0) if urllib.request.urlopen('http://localhost:8188/').status == 200 else exit(1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
       
