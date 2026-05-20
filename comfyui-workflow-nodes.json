@@ -1,0 +1,37 @@
+[
+  {
+    "type": "prompt",
+    "key": "text",
+    "node_ids": ["6"]
+  },
+  {
+    "type": "model",
+    "key": "ckpt_name",
+    "node_ids": ["4"]
+  },
+  {
+    "type": "negative_prompt",
+    "key": "text",
+    "node_ids": ["7"]
+  },
+  {
+    "type": "width",
+    "key": "width",
+    "node_ids": []
+  },
+  {
+    "type": "height",
+    "key": "height",
+    "node_ids": []
+  },
+  {
+    "type": "steps",
+    "key": "steps",
+    "node_ids": []
+  },
+  {
+    "type": "seed",
+    "key": "seed",
+    "node_ids": []
+  }
+]

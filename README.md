@@ -56,16 +56,14 @@ podman compose down
 
 ## ComfyUI
 
-Starts on **http://localhost:8188**.
+Standalone at **http://localhost:8188**. Open WebUI uses it as the image generation backend.
 
 ### Download a model
 
-Models go into `comfyui/ComfyUI/models/checkpoints/` (this directory is gitignored).
-
-For example, to download **Stable Diffusion XL 1.0**:
+Models go into `comfyui/ComfyUI/models/checkpoints/` (gitignored). The default workflow expects **SDXL 1.0**:
 
 ```sh
-# Requires curl and ~7 GB free, maybe HuggingFace Login is required
+# Requires curl and ~7 GB free
 curl -L -o comfyui/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors \
   https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
 ```
@@ -75,6 +73,24 @@ Restart ComfyUI after downloading:
 ```sh
 podman compose stop comfyui && podman compose up -d comfyui
 ```
+
+### Configure Open WebUI (one-time, after first startup)
+
+Open WebUI persists image generation settings in its database, which overrides env vars. After the first `podman compose up -d`, configure ComfyUI in the UI:
+
+1. Open **http://localhost:3000** → click your avatar → **Admin Panel** → **Image Generation**
+2. Set **Image Generation Engine** to `ComfyUI`
+3. Set **ComfyUI Base URL** to `http://host.containers.internal:8188`
+4. Set **Model** to `sd_xl_base_1.0.safetensors`
+5. Set **Size** to `1024x1024` (SDXL native resolution)
+6. Set **Steps** to `20`
+7. Paste the contents of [`comfyui-workflow.json`](comfyui-workflow.json) into **Workflow**
+8. Paste the contents of [`comfyui-workflow-nodes.json`](comfyui-workflow-nodes.json) into **Workflow Nodes**
+9. Click **Save**
+
+### GPU sharing
+
+ComfyUI runs on **CPU** (`CLI_ARGS=--cpu`) so Ollama keeps the full GPU VRAM for the LLM. Image generation is slower (~90 s for SDXL) but avoids out-of-memory errors when the chat model is loaded.
 
 ## Notes
 
