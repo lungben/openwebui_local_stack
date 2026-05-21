@@ -2,6 +2,18 @@
 
 Single `docker-compose.yml` launches a fully self-hosted AI workspace. No cloud APIs, no accounts, no telemetry — everything runs locally on your AMD GPU.
 
+## Security
+
+This stack is designed for **local network use only**, behind a firewall. None of the services implement hardened security controls suitable for public internet exposure:
+
+- No rate limiting or WAF
+- No TLS/HTTPS (plain HTTP)
+- Open WebUI auth is single-user, not multi-tenant hardened
+- Workspace Tools execute arbitrary Python on the server
+- Ollama, ComfyUI, and SearXNG have no authentication of their own
+
+**Do not expose these ports to the public internet.** If remote access is needed, use a VPN, Tailscale, WireGuard, or an SSH tunnel.
+
 ## What it does
 
 | Capability | How |
