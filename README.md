@@ -12,6 +12,7 @@ Single `docker-compose.yml` launches a fully self-hosted AI workspace. No cloud 
 | **RAG on documents** | Upload PDFs, text files, or URLs — the stack embeds them locally (`all-MiniLM-L6-v2`) and the LLM answers from your documents |
 | **In-UI terminal** | Run shell commands, scripts, or code directly inside the chat interface |
 | **Code interpreter** | The LLM can execute Python code in the sandboxed terminal |
+| **Search Paperless-ngx documents** | Ask the chat to find and cite content from your Paperless-ngx document archive (not included in this stack) via a Workspace Tool |
 | **Provision models to other tools** | Open WebUI exposes an authenticated Ollama-compatible API (`/ollama/v1/`) — tools like opencode, Cursor, or any OpenAI-compatible client can access your local models via API key |
 
 ## Prerequisites
@@ -45,14 +46,14 @@ podman compose up -d
 ## Commands
 
 ```sh
-# Start everything
+# Start everything (pulls latest images first)
+./start.sh
+
+# Or manually
 podman compose up -d
 
 # View logs for a service
 podman compose logs -f open-webui
-
-# Pull latest images and recreate
-podman compose pull && podman compose up -d
 
 # Stop everything
 podman compose down
@@ -172,6 +173,28 @@ For other tools, use the Ollama-compatible OpenAI endpoint:
 OPENAI_BASE_URL=http://localhost:3000/ollama/v1
 OPENAI_API_KEY=sk-...  # the key you generated
 ```
+
+## Paperless-ngx integration
+
+Search your Paperless-ngx documents from Open WebUI chat via a community [Workspace Tool](https://raw.githubusercontent.com/soster/openwebui-ai-tools/refs/heads/main/paperless.py).
+
+### Setup
+
+1. In Open WebUI, go to **Workspace** → **Tools** → **+ New Tool**
+2. Paste the contents of [`paperless.py`](https://raw.githubusercontent.com/soster/openwebui-ai-tools/refs/heads/main/paperless.py) (source: [soster/openwebui-ai-tools](https://github.com/soster/openwebui-ai-tools))
+3. In the tool's **Valves** settings, configure:
+   - `PAPERLESS_URL`: Your Paperless-ngx URL (e.g. `https://paperless.example.com`)
+   - `PAPERLESS_TOKEN`: Your Paperless-ngx API token (generate in Paperless → Settings → API Tokens)
+4. Attach the tool to a model: **Admin Panel** → **Models** → select a model → **Tools** → enable `get_paperless_documents`
+
+### Usage
+
+Ask the LLM to search your documents:
+
+> "Find my invoice from Acme Corp"
+> "What does my lease agreement say about subletting?"
+
+The tool returns matching document content with citations.
 
 ## Notes
 

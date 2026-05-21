@@ -23,7 +23,7 @@ Download SDXL checkpoint to `comfyui/ComfyUI/models/checkpoints/sd_xl_base_1.0.s
 ### Commands
 
 ```sh
-podman compose up -d              # start all
-podman compose logs -f <service>  # follow logs
-podman compose down               # stop all
+./start.sh                          # pull latest images and start all
+podman compose logs -f <service>    # follow logs
+podman compose down                 # stop all
 ```
